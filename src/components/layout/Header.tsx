@@ -17,22 +17,35 @@ const navItems = [
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isHidden, setIsHidden] = useState(false);
+  const [lastScrollY, setLastScrollY] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      const currentScrollY = window.scrollY;
+
+      setIsScrolled(currentScrollY > 50);
+
+      // Aşağı kaydırınca gizle, yukarı kaydırınca göster
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setIsHidden(true);
+      } else {
+        setIsHidden(false);
+      }
+
+      setLastScrollY(currentScrollY);
     };
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [lastScrollY]);
 
   return (
     <motion.header
       initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.6 }}
+      animate={{ y: isHidden && !isMobileMenuOpen ? -100 : 0 }}
+      transition={{ duration: 0.3 }}
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
         isScrolled
@@ -40,7 +53,7 @@ export default function Header() {
           : "bg-transparent py-5"
       )}
     >
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-6 md:px-8 lg:px-12">
         <nav className="flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="relative z-50">
@@ -63,8 +76,8 @@ export default function Header() {
             </motion.div>
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-8">
+          {/* Desktop Navigation - Center */}
+          <div className="hidden lg:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
             {navItems.map((item) => (
               <Link
                 key={item.href}
@@ -82,6 +95,10 @@ export default function Header() {
                 </motion.span>
               </Link>
             ))}
+          </div>
+
+          {/* Teklif Al Button - Right */}
+          <div className="hidden lg:block">
             <Link href="/iletisim">
               <Button variant="primary" size="sm">
                 Teklif Al

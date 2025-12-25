@@ -61,7 +61,7 @@ export default function HakkimizdaPage() {
         {backgroundImage && (
           <div className="absolute inset-0 bg-white/80" />
         )}
-        <div className="container mx-auto px-4 relative z-10">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -86,7 +86,7 @@ export default function HakkimizdaPage() {
 
       {/* Stats */}
       <section className="py-10 bg-[#800020]">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {stats.map((stat, index) => (
               <motion.div
@@ -112,7 +112,7 @@ export default function HakkimizdaPage() {
 
       {/* Story */}
       <section className="py-24 bg-white">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <motion.div
               initial={{ opacity: 0, x: -50 }}
@@ -165,7 +165,7 @@ export default function HakkimizdaPage() {
 
       {/* Vision & Mission */}
       <section className="py-24 bg-gray-50">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12">
           <div className="grid md:grid-cols-2 gap-12">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -207,7 +207,7 @@ export default function HakkimizdaPage() {
 
       {/* Values */}
       <section className="py-24 bg-white">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12">
           <SectionTitle
             title="Değerlerimiz"
             subtitle="İşimizi yaparken bizi yönlendiren temel değerler."
@@ -238,7 +238,7 @@ export default function HakkimizdaPage() {
 
       {/* Timeline */}
       <section className="py-24 bg-gray-50">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12">
           <SectionTitle
             title="Yolculuğumuz"
             subtitle="Kuruluşumuzdan bugüne önemli kilometre taşları."

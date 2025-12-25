@@ -61,7 +61,7 @@ export default function HizmetlerPage() {
         {backgroundImage && (
           <div className="absolute inset-0 bg-white/80" />
         )}
-        <div className="container mx-auto px-4 relative z-10">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -85,7 +85,7 @@ export default function HizmetlerPage() {
 
       {/* Services Detail */}
       <section className="py-24 bg-white">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12">
           <div className="space-y-24">
             {services.map((service, index) => {
               const Icon = iconMap[service.icon];
@@ -148,7 +148,7 @@ export default function HizmetlerPage() {
 
       {/* Process */}
       <section className="py-24 bg-gray-50">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12">
           <SectionTitle
             title="Çalışma Sürecimiz"
             subtitle="Projelerinizi başarıyla tamamlamak için izlediğimiz adımlar."
@@ -186,7 +186,7 @@ export default function HizmetlerPage() {
 
       {/* Why Choose Us */}
       <section className="py-24 bg-white">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <motion.div
               initial={{ opacity: 0, x: -50 }}

@@ -36,7 +36,7 @@ export default function PortfolyoPage() {
         {backgroundImage && (
           <div className="absolute inset-0 bg-white/80" />
         )}
-        <div className="container mx-auto px-4 relative z-10">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -59,7 +59,7 @@ export default function PortfolyoPage() {
 
       {/* Filter */}
       <section className="py-8 bg-white sticky top-20 z-30 border-b border-gray-100">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12">
           <div className="flex flex-wrap justify-center gap-3">
             {categories.map((category) => (
               <motion.button
@@ -82,7 +82,7 @@ export default function PortfolyoPage() {
 
       {/* Projects Grid */}
       <section className="py-16 bg-white">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12">
           <motion.div
             layout
             className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"

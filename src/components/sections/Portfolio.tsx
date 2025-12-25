@@ -13,7 +13,7 @@ export default function Portfolio() {
 
   return (
     <section className="py-24 bg-white">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-6 md:px-8 lg:px-12">
         <SectionTitle
           title="Öne Çıkan Çalışmalar"
           subtitle="Müşterilerimiz için gerçekleştirdiğimiz başarılı projelere göz atın."

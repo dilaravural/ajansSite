@@ -48,7 +48,7 @@ const services = [
 export default function Services() {
   return (
     <section className="py-24 bg-gray-50">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-6 md:px-8 lg:px-12">
         <SectionTitle
           title="Hizmetlerimiz"
           subtitle="Markanızın dijital dünyada başarılı olması için ihtiyaç duyduğu tüm hizmetleri sunuyoruz."
