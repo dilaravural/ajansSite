@@ -21,8 +21,6 @@ export default function Hero() {
         <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#800020] rounded-full blur-3xl" />
       </div>
 
-      {/* Grid Pattern */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.03)_1px,transparent_1px)] bg-[size:60px_60px]" />
 
       <div className="container mx-auto px-4 pt-20 relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
