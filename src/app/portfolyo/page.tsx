@@ -7,12 +7,15 @@ import Card from "@/components/ui/Card";
 import SectionTitle from "@/components/ui/SectionTitle";
 import CTA from "@/components/sections/CTA";
 import { projects, categories } from "@/data/projects";
+import { useBackgrounds } from "@/context/BackgroundContext";
 
 export default function PortfolyoPage() {
   const [selectedCategory, setSelectedCategory] = useState("Tümü");
   const [selectedProject, setSelectedProject] = useState<(typeof projects)[0] | null>(
     null
   );
+  const { getBackground } = useBackgrounds();
+  const backgroundImage = getBackground("portfolyo");
 
   const filteredProjects =
     selectedCategory === "Tümü"
@@ -22,8 +25,18 @@ export default function PortfolyoPage() {
   return (
     <div className="page-transition pt-20">
       {/* Hero Section */}
-      <section className="py-24 bg-gradient-to-b from-gray-50 to-white">
-        <div className="container mx-auto px-4">
+      <section
+        className="py-24 bg-gradient-to-b from-gray-50 to-white relative"
+        style={backgroundImage ? {
+          backgroundImage: `url(${backgroundImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        } : {}}
+      >
+        {backgroundImage && (
+          <div className="absolute inset-0 bg-white/80" />
+        )}
+        <div className="container mx-auto px-4 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}

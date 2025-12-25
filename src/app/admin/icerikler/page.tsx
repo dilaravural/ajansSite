@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Edit, Save, X, TrendingUp } from "lucide-react";
+import { Edit, Save, X, TrendingUp, Image, Upload, Trash2, Plus, Clock } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
 import Toast from "@/components/ui/Toast";
+import { useBackgrounds } from "@/context/BackgroundContext";
+import { useTimeline, TimelineItem } from "@/context/TimelineContext";
 
 const initialStats = [
   { id: "projects", label: "Proje", value: 150, suffix: "+" },
@@ -59,6 +61,11 @@ export default function AdminContent() {
   const [stats, setStats] = useState(initialStats);
   const [editingStats, setEditingStats] = useState(false);
   const [statsForm, setStatsForm] = useState(initialStats);
+  const { backgrounds: pageBackgrounds, setBackgrounds: setPageBackgrounds } = useBackgrounds();
+  const { timeline, addTimelineItem, updateTimelineItem, deleteTimelineItem } = useTimeline();
+  const [editingTimelineId, setEditingTimelineId] = useState<string | null>(null);
+  const [timelineForm, setTimelineForm] = useState({ year: "", title: "", description: "" });
+  const [isAddingTimeline, setIsAddingTimeline] = useState(false);
 
   const handleEdit = (section: (typeof contentSections)[0]) => {
     setEditingId(section.id);
@@ -107,6 +114,68 @@ export default function AdminContent() {
     setStatsForm(statsForm.map(stat =>
       stat.id === id ? { ...stat, suffix } : stat
     ));
+  };
+
+  const handleImageUpload = (pageId: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPageBackgrounds(pageBackgrounds.map((page: { id: string; title: string; image: string }) =>
+          page.id === pageId ? { ...page, image: reader.result as string } : page
+        ));
+        setToast({ isVisible: true, message: "Görsel başarıyla yüklendi!", type: "success" });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveImage = (pageId: string) => {
+    setPageBackgrounds(pageBackgrounds.map((page: { id: string; title: string; image: string }) =>
+      page.id === pageId ? { ...page, image: "" } : page
+    ));
+    setToast({ isVisible: true, message: "Görsel kaldırıldı.", type: "success" });
+  };
+
+  const handleEditTimeline = (item: TimelineItem) => {
+    setEditingTimelineId(item.id);
+    setTimelineForm({ year: item.year, title: item.title, description: item.description });
+    setIsAddingTimeline(false);
+  };
+
+  const handleSaveTimeline = () => {
+    if (editingTimelineId) {
+      updateTimelineItem(editingTimelineId, timelineForm);
+      setToast({ isVisible: true, message: "Yolculuk öğesi güncellendi!", type: "success" });
+    }
+    setEditingTimelineId(null);
+    setTimelineForm({ year: "", title: "", description: "" });
+  };
+
+  const handleAddTimeline = () => {
+    setIsAddingTimeline(true);
+    setEditingTimelineId(null);
+    setTimelineForm({ year: "", title: "", description: "" });
+  };
+
+  const handleSaveNewTimeline = () => {
+    if (timelineForm.year && timelineForm.title) {
+      addTimelineItem(timelineForm);
+      setToast({ isVisible: true, message: "Yeni yolculuk öğesi eklendi!", type: "success" });
+      setIsAddingTimeline(false);
+      setTimelineForm({ year: "", title: "", description: "" });
+    }
+  };
+
+  const handleDeleteTimeline = (id: string) => {
+    deleteTimelineItem(id);
+    setToast({ isVisible: true, message: "Yolculuk öğesi silindi.", type: "success" });
+  };
+
+  const handleCancelTimeline = () => {
+    setEditingTimelineId(null);
+    setIsAddingTimeline(false);
+    setTimelineForm({ year: "", title: "", description: "" });
   };
 
   return (
@@ -197,6 +266,198 @@ export default function AdminContent() {
             ))}
           </div>
         )}
+      </motion.div>
+
+      {/* Page Backgrounds Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="bg-white p-6 rounded-xl shadow-sm"
+      >
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 bg-[#800020]/10 rounded-lg flex items-center justify-center">
+            <Image className="w-5 h-5 text-[#800020]" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-black">Sayfa Arka Plan Görselleri</h2>
+            <p className="text-sm text-gray-500">Her sayfa için arka plan görseli ekleyin</p>
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-6">
+          {pageBackgrounds.map((page: { id: string; title: string; image: string }) => (
+            <div key={page.id} className="border border-gray-200 rounded-xl p-4">
+              <h3 className="font-semibold text-black mb-3">{page.title} Sayfası</h3>
+
+              {page.image ? (
+                <div className="relative">
+                  <div
+                    className="aspect-video bg-cover bg-center rounded-lg mb-3"
+                    style={{ backgroundImage: `url(${page.image})` }}
+                  />
+                  <button
+                    onClick={() => handleRemoveImage(page.id)}
+                    className="absolute top-2 right-2 p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <div className="aspect-video bg-gray-100 rounded-lg mb-3 flex items-center justify-center border-2 border-dashed border-gray-300">
+                  <div className="text-center text-gray-400">
+                    <Image className="w-10 h-10 mx-auto mb-2" />
+                    <p className="text-sm">Görsel yüklenmedi</p>
+                  </div>
+                </div>
+              )}
+
+              <label className="flex items-center justify-center gap-2 w-full py-2.5 bg-[#800020] hover:bg-[#600018] text-white rounded-lg cursor-pointer transition-colors">
+                <Upload className="w-4 h-4" />
+                <span className="text-sm font-medium">
+                  {page.image ? "Görseli Değiştir" : "Görsel Yükle"}
+                </span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleImageUpload(page.id, e)}
+                  className="hidden"
+                />
+              </label>
+            </div>
+          ))}
+        </div>
+      </motion.div>
+
+      {/* Timeline Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="bg-white p-6 rounded-xl shadow-sm"
+      >
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-[#800020]/10 rounded-lg flex items-center justify-center">
+              <Clock className="w-5 h-5 text-[#800020]" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-black">Yolculuğumuz</h2>
+              <p className="text-sm text-gray-500">Şirket tarihçesi ve kilometre taşları</p>
+            </div>
+          </div>
+          <button
+            onClick={handleAddTimeline}
+            className="flex items-center gap-2 px-4 py-2 bg-[#800020] hover:bg-[#600018] text-white rounded-lg transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            <span className="text-sm font-medium">Yeni Ekle</span>
+          </button>
+        </div>
+
+        {/* Add New Timeline Item */}
+        {isAddingTimeline && (
+          <div className="mb-6 p-4 border-2 border-[#800020] rounded-xl bg-[#800020]/5">
+            <h3 className="font-semibold text-black mb-4">Yeni Yolculuk Öğesi</h3>
+            <div className="grid md:grid-cols-2 gap-4 mb-4">
+              <Input
+                label="Yıl"
+                value={timelineForm.year}
+                onChange={(e) => setTimelineForm({ ...timelineForm, year: e.target.value })}
+                placeholder="2024"
+              />
+              <Input
+                label="Başlık"
+                value={timelineForm.title}
+                onChange={(e) => setTimelineForm({ ...timelineForm, title: e.target.value })}
+                placeholder="Önemli gelişme"
+              />
+            </div>
+            <Textarea
+              label="Açıklama"
+              value={timelineForm.description}
+              onChange={(e) => setTimelineForm({ ...timelineForm, description: e.target.value })}
+              placeholder="Bu dönemde neler oldu..."
+              rows={2}
+            />
+            <div className="flex justify-end gap-3 mt-4">
+              <Button variant="outline" onClick={handleCancelTimeline}>
+                <X className="w-4 h-4 mr-2" />
+                İptal
+              </Button>
+              <Button variant="primary" onClick={handleSaveNewTimeline}>
+                <Save className="w-4 h-4 mr-2" />
+                Ekle
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Timeline Items */}
+        <div className="space-y-4">
+          {timeline.map((item) => (
+            <div key={item.id} className="border border-gray-200 rounded-xl p-4">
+              {editingTimelineId === item.id ? (
+                <div>
+                  <div className="grid md:grid-cols-2 gap-4 mb-4">
+                    <Input
+                      label="Yıl"
+                      value={timelineForm.year}
+                      onChange={(e) => setTimelineForm({ ...timelineForm, year: e.target.value })}
+                    />
+                    <Input
+                      label="Başlık"
+                      value={timelineForm.title}
+                      onChange={(e) => setTimelineForm({ ...timelineForm, title: e.target.value })}
+                    />
+                  </div>
+                  <Textarea
+                    label="Açıklama"
+                    value={timelineForm.description}
+                    onChange={(e) => setTimelineForm({ ...timelineForm, description: e.target.value })}
+                    rows={2}
+                  />
+                  <div className="flex justify-end gap-3 mt-4">
+                    <Button variant="outline" onClick={handleCancelTimeline}>
+                      <X className="w-4 h-4 mr-2" />
+                      İptal
+                    </Button>
+                    <Button variant="primary" onClick={handleSaveTimeline}>
+                      <Save className="w-4 h-4 mr-2" />
+                      Kaydet
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-start justify-between">
+                  <div>
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className="px-3 py-1 bg-[#800020]/10 text-[#800020] rounded-full text-sm font-bold">
+                        {item.year}
+                      </span>
+                      <h3 className="font-semibold text-black">{item.title}</h3>
+                    </div>
+                    <p className="text-gray-600 text-sm">{item.description}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleEditTimeline(item)}
+                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    >
+                      <Edit className="w-4 h-4 text-gray-600" />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteTimeline(item.id)}
+                      className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4 text-red-500" />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
       </motion.div>
 
       {/* Content Sections */}
