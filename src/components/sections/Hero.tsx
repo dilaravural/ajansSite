@@ -1,18 +1,51 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
 import CountUp from "@/components/ui/CountUp";
 import { Play, ArrowRight } from "lucide-react";
-
-const stats = [
-  { value: 150, suffix: "+", label: "Proje" },
-  { value: 50, suffix: "+", label: "Mutlu Müşteri" },
-  { value: 5, suffix: "+", label: "Yıl Deneyim" },
-];
+import { api } from "@/lib/api";
 
 export default function Hero() {
+  const [stats, setStats] = useState([
+    { value: 0, suffix: "+", label: "Proje" },
+    { value: 0, suffix: "+", label: "Mutlu Müşteri" },
+    { value: 0, suffix: "+", label: "Yıl Deneyim" },
+  ]);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const settings = await api.getSettings();
+
+        // Settings is grouped by category, access stats group
+        const statsGroup = settings.stats || {};
+
+        setStats([
+          {
+            value: statsGroup.site_stats_projects ? parseInt(statsGroup.site_stats_projects.value) : 150,
+            suffix: "+",
+            label: "Proje"
+          },
+          {
+            value: statsGroup.site_stats_clients ? parseInt(statsGroup.site_stats_clients.value) : 50,
+            suffix: "+",
+            label: "Mutlu Müşteri"
+          },
+          {
+            value: statsGroup.site_stats_years ? parseInt(statsGroup.site_stats_years.value) : 5,
+            suffix: "+",
+            label: "Yıl Deneyim"
+          },
+        ]);
+      } catch (error) {
+        console.error("Error fetching settings:", error);
+      }
+    };
+    fetchSettings();
+  }, []);
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-white">
       {/* Background Pattern */}
