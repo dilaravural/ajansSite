@@ -1,16 +1,52 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Plus, Edit, Trash2, Search, Filter } from "lucide-react";
+import { Plus, Edit, Trash2, Search } from "lucide-react";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
-import Input from "@/components/ui/Input";
-import { projects, categories } from "@/data/projects";
+import { api, Project } from "@/lib/api";
 
 export default function AdminProjects() {
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [categories, setCategories] = useState<string[]>(["Tümü"]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Tümü");
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+
+  const fetchProjects = async () => {
+    try {
+      setIsLoading(true);
+      const data = await api.getProjects();
+      setProjects(data);
+
+      // Extract unique categories
+      const uniqueCategories = Array.from(new Set(data.map(p => p.category)));
+      setCategories(["Tümü", ...uniqueCategories]);
+    } catch (err: any) {
+      setError(err.message || "Projeler yüklenirken bir hata oluştu");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: string, title: string) => {
+    if (!confirm(`"${title}" projesini silmek istediğinizden emin misiniz?`)) {
+      return;
+    }
+
+    try {
+      await api.deleteProject(id);
+      setProjects(projects.filter(p => p.id !== id));
+    } catch (err: any) {
+      alert(err.message || "Proje silinirken bir hata oluştu");
+    }
+  };
 
   const filteredProjects = projects.filter((project) => {
     const matchesSearch = project.title
@@ -68,11 +104,29 @@ export default function AdminProjects() {
         </div>
       </div>
 
+      {/* Loading State */}
+      {isLoading && (
+        <div className="flex items-center justify-center py-16">
+          <div className="text-center">
+            <div className="w-12 h-12 border-4 border-[#800020] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600">Projeler yükleniyor...</p>
+          </div>
+        </div>
+      )}
+
+      {/* Error State */}
+      {error && !isLoading && (
+        <div className="bg-red-50 border border-red-200 text-red-600 px-6 py-4 rounded-lg">
+          {error}
+        </div>
+      )}
+
       {/* Projects Table */}
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
+      {!isLoading && !error && (
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
                 <th className="text-left py-4 px-6 font-semibold text-gray-700">
                   Proje
@@ -122,10 +176,15 @@ export default function AdminProjects() {
                   <td className="py-4 px-6 text-gray-700">{project.date}</td>
                   <td className="py-4 px-6">
                     <div className="flex items-center justify-end gap-2">
-                      <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                        <Edit className="w-5 h-5 text-gray-600" />
-                      </button>
-                      <button className="p-2 hover:bg-red-50 rounded-lg transition-colors">
+                      <Link href={`/admin/projeler/${project.id}`}>
+                        <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                          <Edit className="w-5 h-5 text-gray-600" />
+                        </button>
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(project.id, project.title)}
+                        className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                      >
                         <Trash2 className="w-5 h-5 text-red-500" />
                       </button>
                     </div>
@@ -141,7 +200,8 @@ export default function AdminProjects() {
             <p className="text-gray-600">Proje bulunamadı.</p>
           </div>
         )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

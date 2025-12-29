@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -13,22 +15,33 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Here you would typically:
-    // 1. Save to database
-    // 2. Send email notification
-    // 3. Integrate with a CRM
-
-    console.log("Contact form submission:", {
-      name,
-      email,
-      phone,
-      company,
-      message,
-      timestamp: new Date().toISOString(),
+    // Send to Laravel backend
+    const response = await fetch(`${API_URL}/contact`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name,
+        email,
+        phone,
+        company,
+        message,
+      }),
     });
 
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Failed to send message' }));
+      return NextResponse.json(
+        { error: error.message || 'Failed to send message' },
+        { status: response.status }
+      );
+    }
+
+    const data = await response.json();
+
     return NextResponse.json(
-      { success: true, message: "Message sent successfully" },
+      { success: true, message: data.message || 'Message sent successfully', data: data.data },
       { status: 200 }
     );
   } catch (error) {

@@ -1,15 +1,24 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Share2, Video, Megaphone, PenTool, Check, ArrowRight } from "lucide-react";
+import { Share2, Video, Megaphone, PenTool, Check, ArrowRight, Target, FileText } from "lucide-react";
 import Link from "next/link";
 import SectionTitle from "@/components/ui/SectionTitle";
 import Button from "@/components/ui/Button";
 import CTA from "@/components/sections/CTA";
+
+import { api, Service } from "@/lib/api";
+
 import { services } from "@/data/services";
 import { useBackgrounds } from "@/context/BackgroundContext";
 
+
 const iconMap: { [key: string]: any } = {
+  Share2: Share2,
+  Video: Video,
+  Target: Target,
+  FileText: FileText,
   share2: Share2,
   video: Video,
   megaphone: Megaphone,
@@ -44,8 +53,30 @@ const process = [
 ];
 
 export default function HizmetlerPage() {
+
+  const [services, setServices] = useState<Service[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        setIsLoading(true);
+        const data = await api.getServices(true); // Only active services
+        setServices(data);
+      } catch (err: any) {
+        setError(err.message || "Hizmetler yüklenirken bir hata oluştu");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchServices();
+  }, []);
+      
   const { getBackground } = useBackgrounds();
   const backgroundImage = getBackground("hizmetler");
+
 
   return (
     <div className="page-transition pt-20">
@@ -85,10 +116,38 @@ export default function HizmetlerPage() {
 
       {/* Services Detail */}
       <section className="py-24 bg-white">
+
+        <div className="container mx-auto px-4">
+          {/* Loading State */}
+          {isLoading && (
+            <div className="flex items-center justify-center py-16">
+              <div className="text-center">
+                <div className="w-12 h-12 border-4 border-[#800020] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <p className="text-gray-600">Hizmetler yükleniyor...</p>
+              </div>
+            </div>
+          )}
+
+          {/* Error State */}
+          {error && !isLoading && (
+            <div className="text-center py-16">
+              <div className="bg-red-50 border border-red-200 text-red-600 px-6 py-4 rounded-lg inline-block">
+                {error}
+              </div>
+            </div>
+          )}
+
+          {/* Services Grid */}
+          {!isLoading && !error && (
+            <div className="space-y-24">
+              {services.map((service, index) => {
+              const Icon = iconMap[service.icon] || Share2;
+
         <div className="container mx-auto px-6 md:px-8 lg:px-12">
           <div className="space-y-24">
             {services.map((service, index) => {
               const Icon = iconMap[service.icon];
+              
               const isEven = index % 2 === 0;
 
               return (
@@ -142,7 +201,8 @@ export default function HizmetlerPage() {
                 </motion.div>
               );
             })}
-          </div>
+            </div>
+          )}
         </div>
       </section>
 
