@@ -5,6 +5,7 @@ import Link from "next/link";
 import Button from "@/components/ui/Button";
 import CountUp from "@/components/ui/CountUp";
 import TextReveal from "@/components/ui/TextReveal";
+import FloatingParticles from "@/components/ui/FloatingParticles";
 import { Play, ArrowRight } from "lucide-react";
 
 const stats = [
@@ -16,11 +17,8 @@ const stats = [
 export default function Hero() {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-white">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-[#800020] rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#800020] rounded-full blur-3xl" />
-      </div>
+      {/* Floating Particles */}
+      <FloatingParticles count={25} color="#800020" minSize={3} maxSize={10} />
 
 
       <div className="container mx-auto px-6 md:px-8 lg:px-12 pt-20 relative z-10">

@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Target, Eye, Heart, Users, Award, Zap, Rocket, Smile, Clock, UserCheck } from "lucide-react";
 import SectionTitle from "@/components/ui/SectionTitle";
 import CTA from "@/components/sections/CTA";
+import FloatingParticles from "@/components/ui/FloatingParticles";
 import { useBackgrounds } from "@/context/BackgroundContext";
 import { useTimeline } from "@/context/TimelineContext";
 import CountUp from "@/components/ui/CountUp";
@@ -51,13 +52,14 @@ export default function HakkimizdaPage() {
     <div className="page-transition pt-20">
       {/* Hero Section */}
       <section
-        className="py-24 bg-gradient-to-b from-gray-50 to-white relative"
+        className="py-24 bg-gradient-to-b from-gray-50 to-white relative overflow-hidden"
         style={backgroundImage ? {
           backgroundImage: `url(${backgroundImage})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         } : {}}
       >
+        <FloatingParticles count={20} color="#800020" minSize={3} maxSize={8} />
         {backgroundImage && (
           <div className="absolute inset-0 bg-white/80" />
         )}

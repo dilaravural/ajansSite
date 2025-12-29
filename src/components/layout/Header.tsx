@@ -83,16 +83,14 @@ export default function Header() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "relative font-medium transition-colors duration-300 hover:text-[#800020]",
+                  "relative font-medium transition-colors duration-300 hover:text-[#800020] group",
                   isScrolled ? "text-gray-700" : "text-gray-700"
                 )}
               >
-                <motion.span
-                  whileHover={{ y: -2 }}
-                  className="inline-block"
-                >
+                <span className="relative">
                   {item.label}
-                </motion.span>
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#800020] transition-all duration-300 group-hover:w-full" />
+                </span>
               </Link>
             ))}
           </div>

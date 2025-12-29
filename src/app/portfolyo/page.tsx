@@ -6,6 +6,7 @@ import { Play, X, ExternalLink } from "lucide-react";
 import Card3D from "@/components/ui/Card3D";
 import SectionTitle from "@/components/ui/SectionTitle";
 import CTA from "@/components/sections/CTA";
+import FloatingParticles from "@/components/ui/FloatingParticles";
 import { projects, categories } from "@/data/projects";
 import { useBackgrounds } from "@/context/BackgroundContext";
 
@@ -26,13 +27,14 @@ export default function PortfolyoPage() {
     <div className="page-transition pt-20">
       {/* Hero Section */}
       <section
-        className="py-24 bg-gradient-to-b from-gray-50 to-white relative"
+        className="py-24 bg-gradient-to-b from-gray-50 to-white relative overflow-hidden"
         style={backgroundImage ? {
           backgroundImage: `url(${backgroundImage})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         } : {}}
       >
+        <FloatingParticles count={20} color="#800020" minSize={3} maxSize={8} />
         {backgroundImage && (
           <div className="absolute inset-0 bg-white/80" />
         )}

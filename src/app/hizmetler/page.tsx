@@ -6,6 +6,7 @@ import Link from "next/link";
 import SectionTitle from "@/components/ui/SectionTitle";
 import Button from "@/components/ui/Button";
 import CTA from "@/components/sections/CTA";
+import FloatingParticles from "@/components/ui/FloatingParticles";
 import { services } from "@/data/services";
 import { useBackgrounds } from "@/context/BackgroundContext";
 
@@ -51,13 +52,14 @@ export default function HizmetlerPage() {
     <div className="page-transition pt-20">
       {/* Hero Section */}
       <section
-        className="py-24 bg-gradient-to-b from-gray-50 to-white relative"
+        className="py-24 bg-gradient-to-b from-gray-50 to-white relative overflow-hidden"
         style={backgroundImage ? {
           backgroundImage: `url(${backgroundImage})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         } : {}}
       >
+        <FloatingParticles count={20} color="#800020" minSize={3} maxSize={8} />
         {backgroundImage && (
           <div className="absolute inset-0 bg-white/80" />
         )}
