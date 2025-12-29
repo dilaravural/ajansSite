@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Play, X, ExternalLink } from "lucide-react";
-import Card from "@/components/ui/Card";
+import Card3D from "@/components/ui/Card3D";
 import SectionTitle from "@/components/ui/SectionTitle";
 import CTA from "@/components/sections/CTA";
 import { projects, categories } from "@/data/projects";
@@ -58,7 +58,7 @@ export default function PortfolyoPage() {
       </section>
 
       {/* Filter */}
-      <section className="py-8 bg-white sticky top-20 z-30 border-b border-gray-100">
+      <section className="py-8 bg-white border-b border-gray-100">
         <div className="container mx-auto px-6 md:px-8 lg:px-12">
           <div className="flex flex-wrap justify-center gap-3">
             {categories.map((category) => (
@@ -96,10 +96,12 @@ export default function PortfolyoPage() {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
                   transition={{ duration: 0.3 }}
+                  style={{ perspective: 1000 }}
                 >
-                  <Card
+                  <Card3D
                     className="group cursor-pointer"
                     onClick={() => setSelectedProject(project)}
+                    intensity={10}
                   >
                     {/* Thumbnail */}
                     <div className="relative aspect-video bg-gradient-to-br from-gray-200 to-gray-300 overflow-hidden">
@@ -137,7 +139,7 @@ export default function PortfolyoPage() {
                         </span>
                       </div>
                     </div>
-                  </Card>
+                  </Card3D>
                 </motion.div>
               ))}
             </AnimatePresence>
