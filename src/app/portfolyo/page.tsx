@@ -1,22 +1,42 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, X, ExternalLink } from "lucide-react";
+import { Play, X } from "lucide-react";
 import Card3D from "@/components/ui/Card3D";
-import SectionTitle from "@/components/ui/SectionTitle";
 import CTA from "@/components/sections/CTA";
 import FloatingParticles from "@/components/ui/FloatingParticles";
-import { projects, categories } from "@/data/projects";
-import { useBackgrounds } from "@/context/BackgroundContext";
+import { api, Project } from "@/lib/api";
 
 export default function PortfolyoPage() {
   const [selectedCategory, setSelectedCategory] = useState("Tümü");
-  const [selectedProject, setSelectedProject] = useState<(typeof projects)[0] | null>(
-    null
-  );
-  const { getBackground } = useBackgrounds();
-  const backgroundImage = getBackground("portfolyo");
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [categories, setCategories] = useState<string[]>(["Tümü"]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        setIsLoading(true);
+        const data = await api.getProjects();
+        setProjects(data);
+
+        // Extract unique categories from projects
+        const uniqueCategories = Array.from(
+          new Set(data.map(p => p.category))
+        );
+        setCategories(["Tümü", ...uniqueCategories]);
+      } catch (err: any) {
+        setError(err.message || "Projeler yüklenirken bir hata oluştu");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProjects();
+  }, []);
 
   const filteredProjects =
     selectedCategory === "Tümü"
@@ -26,18 +46,8 @@ export default function PortfolyoPage() {
   return (
     <div className="page-transition pt-20">
       {/* Hero Section */}
-      <section
-        className="py-24 bg-gradient-to-b from-gray-50 to-white relative overflow-hidden"
-        style={backgroundImage ? {
-          backgroundImage: `url(${backgroundImage})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        } : {}}
-      >
+      <section className="py-24 bg-gradient-to-b from-gray-50 to-white relative overflow-hidden">
         <FloatingParticles count={20} color="#800020" minSize={3} maxSize={8} />
-        {backgroundImage && (
-          <div className="absolute inset-0 bg-white/80" />
-        )}
         <div className="container mx-auto px-6 md:px-8 lg:px-12 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -85,74 +95,96 @@ export default function PortfolyoPage() {
       {/* Projects Grid */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-6 md:px-8 lg:px-12">
-          <motion.div
-            layout
-            className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
-          >
-            <AnimatePresence mode="popLayout">
-              {filteredProjects.map((project) => (
-                <motion.div
-                  key={project.id}
-                  layout
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.3 }}
-                  style={{ perspective: 1000 }}
-                >
-                  <Card3D
-                    className="group cursor-pointer"
-                    onClick={() => setSelectedProject(project)}
-                    intensity={10}
-                  >
-                    {/* Thumbnail */}
-                    <div className="relative aspect-video bg-gradient-to-br from-gray-200 to-gray-300 overflow-hidden">
-                      <div className="absolute inset-0 bg-gradient-to-br from-[#800020] to-[#5c0017] opacity-80" />
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <motion.div
-                          whileHover={{ scale: 1.1 }}
-                          className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                        >
-                          <Play className="w-6 h-6 text-[#800020] ml-1" />
-                        </motion.div>
-                      </div>
-                      {/* Category Badge */}
-                      <div className="absolute top-4 left-4">
-                        <span className="px-3 py-1 bg-white/90 text-[#800020] rounded-full text-sm font-medium">
-                          {project.category}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Content */}
-                    <div className="p-6">
-                      <h3 className="text-xl font-bold text-black mb-2 group-hover:text-[#800020] transition-colors">
-                        {project.title}
-                      </h3>
-                      <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                        {project.description}
-                      </p>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-500">
-                          {project.client}
-                        </span>
-                        <span className="text-sm text-[#800020] font-medium">
-                          {project.date}
-                        </span>
-                      </div>
-                    </div>
-                  </Card3D>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </motion.div>
-
-          {filteredProjects.length === 0 && (
-            <div className="text-center py-16">
-              <p className="text-gray-600 text-lg">
-                Bu kategoride henüz proje bulunmuyor.
-              </p>
+          {/* Loading State */}
+          {isLoading && (
+            <div className="flex items-center justify-center py-16">
+              <div className="text-center">
+                <div className="w-12 h-12 border-4 border-[#800020] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <p className="text-gray-600">Projeler yükleniyor...</p>
+              </div>
             </div>
+          )}
+
+          {/* Error State */}
+          {error && !isLoading && (
+            <div className="text-center py-16">
+              <div className="bg-red-50 border border-red-200 text-red-600 px-6 py-4 rounded-lg inline-block">
+                {error}
+              </div>
+            </div>
+          )}
+
+          {/* Projects Grid */}
+          {!isLoading && !error && (
+            <motion.div
+              layout
+              className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+            >
+              <AnimatePresence mode="popLayout">
+                {filteredProjects.map((project) => (
+                  <motion.div
+                    key={project.id}
+                    layout
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{ duration: 0.3 }}
+                    style={{ perspective: 1000 }}
+                  >
+                    <Card3D
+                      className="group cursor-pointer"
+                      onClick={() => setSelectedProject(project)}
+                      intensity={10}
+                    >
+                      {/* Thumbnail */}
+                      <div className="relative aspect-video bg-gradient-to-br from-gray-200 to-gray-300 overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-br from-[#800020] to-[#5c0017] opacity-80" />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <motion.div
+                            whileHover={{ scale: 1.1 }}
+                            className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                          >
+                            <Play className="w-6 h-6 text-[#800020] ml-1" />
+                          </motion.div>
+                        </div>
+                        {/* Category Badge */}
+                        <div className="absolute top-4 left-4">
+                          <span className="px-3 py-1 bg-white/90 text-[#800020] rounded-full text-sm font-medium">
+                            {project.category}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Content */}
+                      <div className="p-6">
+                        <h3 className="text-xl font-bold text-black mb-2 group-hover:text-[#800020] transition-colors">
+                          {project.title}
+                        </h3>
+                        <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                          {project.description}
+                        </p>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-500">
+                            {project.client}
+                          </span>
+                          <span className="text-sm text-[#800020] font-medium">
+                            {project.date}
+                          </span>
+                        </div>
+                      </div>
+                    </Card3D>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+
+              {filteredProjects.length === 0 && (
+                <div className="col-span-full text-center py-16">
+                  <p className="text-gray-600 text-lg">
+                    Bu kategoride henüz proje bulunmuyor.
+                  </p>
+                </div>
+              )}
+            </motion.div>
           )}
         </div>
       </section>
@@ -184,9 +216,9 @@ export default function PortfolyoPage() {
 
               {/* Video */}
               <div className="aspect-video bg-black">
-                {selectedProject.videoUrl ? (
+                {selectedProject.video_url ? (
                   <iframe
-                    src={selectedProject.videoUrl}
+                    src={selectedProject.video_url}
                     className="w-full h-full"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen

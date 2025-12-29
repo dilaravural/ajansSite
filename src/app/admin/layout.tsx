@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
@@ -16,6 +16,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
 
 const sidebarItems = [
   {
@@ -48,6 +49,48 @@ export default function AdminLayout({
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+  const { isAuthenticated, isLoading, logout, user } = useAuth();
+
+  useEffect(() => {
+    // Redirect to login if not authenticated (except on login page)
+    if (!isLoading && !isAuthenticated && pathname !== '/admin/login') {
+      router.replace('/admin/login');
+    }
+  }, [isAuthenticated, isLoading, pathname, router]);
+
+  const handleLogout = async () => {
+    await logout();
+  };
+
+  // Don't show layout on login page
+  if (pathname === '/admin/login') {
+    return <>{children}</>;
+  }
+
+  // Show loading while checking authentication
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-[#800020] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Yükleniyor...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render anything if not authenticated (will redirect)
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-[#800020] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Yönlendiriliyor...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -144,14 +187,20 @@ export default function AdminLayout({
         </button>
 
         {/* Footer */}
-        <div className="p-3 border-t border-gray-200">
-          <Link
-            href="/"
+        <div className="p-3 border-t border-gray-200 space-y-1">
+          {user && !isCollapsed && (
+            <div className="px-3 py-2 text-xs text-gray-500">
+              <div className="font-medium text-gray-700">{user.name}</div>
+              <div className="truncate">{user.email}</div>
+            </div>
+          )}
+          <button
+            onClick={handleLogout}
             className={cn(
-              "flex items-center gap-3 px-3 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors",
+              "w-full flex items-center gap-3 px-3 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors",
               isCollapsed && "justify-center"
             )}
-            title={isCollapsed ? "Siteye Dön" : undefined}
+            title={isCollapsed ? "Çıkış Yap" : undefined}
           >
             <LogOut className="w-5 h-5 flex-shrink-0" />
             <AnimatePresence>
@@ -163,11 +212,11 @@ export default function AdminLayout({
                   transition={{ duration: 0.2 }}
                   className="font-medium overflow-hidden whitespace-nowrap"
                 >
-                  Siteye Dön
+                  Çıkış Yap
                 </motion.span>
               )}
             </AnimatePresence>
-          </Link>
+          </button>
         </div>
       </motion.aside>
 
@@ -235,14 +284,20 @@ export default function AdminLayout({
               </nav>
 
               {/* Footer */}
-              <div className="p-4 border-t border-gray-200">
-                <Link
-                  href="/"
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+              <div className="p-4 border-t border-gray-200 space-y-2">
+                {user && (
+                  <div className="px-4 py-2 text-xs text-gray-500">
+                    <div className="font-medium text-gray-700">{user.name}</div>
+                    <div className="truncate">{user.email}</div>
+                  </div>
+                )}
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                 >
                   <LogOut className="w-5 h-5" />
-                  <span className="font-medium">Siteye Dön</span>
-                </Link>
+                  <span className="font-medium">Çıkış Yap</span>
+                </button>
               </div>
             </motion.aside>
           </>

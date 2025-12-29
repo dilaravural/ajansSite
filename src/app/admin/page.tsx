@@ -1,45 +1,19 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { FolderOpen, Eye, MessageSquare, TrendingUp } from "lucide-react";
+import { FolderOpen, Eye, MessageSquare, TrendingUp, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { api, Project, ContactMessage } from "@/lib/api";
 
-const stats = [
-  {
-    icon: FolderOpen,
-    label: "Toplam Proje",
-    value: "6",
-    change: "+2 bu ay",
-    color: "bg-blue-500",
-  },
-  {
-    icon: Eye,
-    label: "Sayfa Görüntüleme",
-    value: "1,234",
-    change: "+15% bu hafta",
-    color: "bg-green-500",
-  },
-  {
-    icon: MessageSquare,
-    label: "Mesajlar",
-    value: "12",
-    change: "3 yeni",
-    color: "bg-yellow-500",
-  },
-  {
-    icon: TrendingUp,
-    label: "Dönüşüm Oranı",
-    value: "%4.5",
-    change: "+0.5%",
-    color: "bg-purple-500",
-  },
-];
-
-const recentProjects = [
-  { title: "Luxury Hotel Tanıtım Filmi", category: "Tanıtım Filmi", date: "2024" },
-  { title: "Tech Startup Sosyal Medya Kampanyası", category: "Sosyal Medya", date: "2024" },
-  { title: "Restoran Zinciri Reklam Filmi", category: "Reklam", date: "2024" },
-];
+interface Stats {
+  total_projects: number;
+  total_services: number;
+  total_messages: number;
+  unread_messages: number;
+  recent_projects: Project[];
+  recent_messages: ContactMessage[];
+}
 
 const quickActions = [
   { label: "Yeni Proje Ekle", href: "/admin/projeler/yeni", color: "bg-[#800020]" },
@@ -48,6 +22,80 @@ const quickActions = [
 ];
 
 export default function AdminDashboard() {
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        setIsLoading(true);
+        const data = await api.getStats();
+        setStats(data);
+      } catch (err: any) {
+        setError(err.message || "İstatistikler yüklenirken bir hata oluştu");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-[#800020] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Yükleniyor...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-red-50 border border-red-200 text-red-600 px-6 py-4 rounded-lg">
+        {error}
+      </div>
+    );
+  }
+
+  if (!stats) {
+    return null;
+  }
+
+  const statCards = [
+    {
+      icon: FolderOpen,
+      label: "Toplam Proje",
+      value: stats.total_projects.toString(),
+      change: `${stats.recent_projects.length} yeni`,
+      color: "bg-blue-500",
+    },
+    {
+      icon: TrendingUp,
+      label: "Toplam Hizmet",
+      value: stats.total_services.toString(),
+      change: "Aktif",
+      color: "bg-green-500",
+    },
+    {
+      icon: MessageSquare,
+      label: "Mesajlar",
+      value: stats.total_messages.toString(),
+      change: `${stats.unread_messages} yeni`,
+      color: "bg-yellow-500",
+    },
+    {
+      icon: Eye,
+      label: "Okunmamış",
+      value: stats.unread_messages.toString(),
+      change: "Mesaj",
+      color: "bg-purple-500",
+    },
+  ];
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -58,7 +106,7 @@ export default function AdminDashboard() {
 
       {/* Stats */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => (
+        {statCards.map((stat, index) => (
           <motion.div
             key={index}
             initial={{ opacity: 0, y: 20 }}
@@ -118,18 +166,22 @@ export default function AdminDashboard() {
             </Link>
           </div>
           <div className="space-y-4">
-            {recentProjects.map((project, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0"
-              >
-                <div>
-                  <div className="font-medium text-black">{project.title}</div>
-                  <div className="text-sm text-gray-500">{project.category}</div>
+            {stats.recent_projects.length > 0 ? (
+              stats.recent_projects.slice(0, 5).map((project, index) => (
+                <div
+                  key={project.id}
+                  className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0"
+                >
+                  <div>
+                    <div className="font-medium text-black">{project.title}</div>
+                    <div className="text-sm text-gray-500">{project.category}</div>
+                  </div>
+                  <span className="text-sm text-gray-500">{project.date}</span>
                 </div>
-                <span className="text-sm text-gray-500">{project.date}</span>
-              </div>
-            ))}
+              ))
+            ) : (
+              <div className="text-center py-8 text-gray-500">Henüz proje yok</div>
+            )}
           </div>
         </motion.div>
 
@@ -142,34 +194,38 @@ export default function AdminDashboard() {
         >
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold text-black">Son Mesajlar</h2>
-            <span className="bg-red-100 text-red-600 text-xs px-2 py-1 rounded-full font-medium">
-              3 Yeni
-            </span>
+            {stats.unread_messages > 0 && (
+              <span className="bg-red-100 text-red-600 text-xs px-2 py-1 rounded-full font-medium">
+                {stats.unread_messages} Yeni
+              </span>
+            )}
           </div>
           <div className="space-y-4">
-            {[
-              { name: "Ahmet Yılmaz", message: "Video prodüksiyon hizmeti için teklif almak istiyorum.", time: "2 saat önce" },
-              { name: "Mehmet Kaya", message: "Sosyal medya yönetimi hakkında bilgi alabilir miyim?", time: "5 saat önce" },
-              { name: "Ayşe Demir", message: "Kurumsal tanıtım filmi için görüşmek istiyorum.", time: "1 gün önce" },
-            ].map((msg, index) => (
-              <div
-                key={index}
-                className="flex items-start gap-3 py-3 border-b border-gray-100 last:border-0"
-              >
-                <div className="w-10 h-10 bg-[#800020]/10 rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="text-[#800020] font-medium">
-                    {msg.name.charAt(0)}
-                  </span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <div className="font-medium text-black">{msg.name}</div>
-                    <div className="text-xs text-gray-500">{msg.time}</div>
+            {stats.recent_messages.length > 0 ? (
+              stats.recent_messages.slice(0, 5).map((msg, index) => (
+                <div
+                  key={msg.id}
+                  className="flex items-start gap-3 py-3 border-b border-gray-100 last:border-0"
+                >
+                  <div className="w-10 h-10 bg-[#800020]/10 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-[#800020] font-medium">
+                      {msg.name.charAt(0).toUpperCase()}
+                    </span>
                   </div>
-                  <p className="text-sm text-gray-600 truncate">{msg.message}</p>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <div className="font-medium text-black">{msg.name}</div>
+                      <div className="text-xs text-gray-500">
+                        {new Date(msg.created_at).toLocaleDateString('tr-TR')}
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-600 truncate">{msg.message}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <div className="text-center py-8 text-gray-500">Henüz mesaj yok</div>
+            )}
           </div>
         </motion.div>
       </div>

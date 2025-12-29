@@ -1,15 +1,43 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { Play, ArrowRight } from "lucide-react";
 import Card3D from "@/components/ui/Card3D";
 import SectionTitle from "@/components/ui/SectionTitle";
 import Button from "@/components/ui/Button";
-import { projects } from "@/data/projects";
+import { api, Project } from "@/lib/api";
 
 export default function Portfolio() {
-  const featuredProjects = projects.slice(0, 3);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const data = await api.getProjects({ featured: true });
+        setProjects(data.slice(0, 3)); // Show only first 3
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchProjects();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <section className="py-24 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-center py-16">
+            <div className="w-12 h-12 border-4 border-[#800020] border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-24 bg-white">
@@ -21,7 +49,7 @@ export default function Portfolio() {
         />
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {featuredProjects.map((project, index) => (
+          {projects.map((project, index) => (
             <motion.div
               key={project.id}
               initial={{ opacity: 0, y: 30 }}

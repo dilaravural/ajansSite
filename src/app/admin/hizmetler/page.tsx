@@ -1,15 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Edit, Save, X, Share2, Video, Megaphone, PenTool } from "lucide-react";
+import { Edit, Save, X, Share2, Video, Megaphone, PenTool, Target, FileText } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
 import Toast from "@/components/ui/Toast";
-import { services } from "@/data/services";
+import { api, Service } from "@/lib/api";
 
 const iconMap: { [key: string]: any } = {
+  Share2: Share2,
+  Video: Video,
+  Target: Target,
+  FileText: FileText,
   share2: Share2,
   video: Video,
   megaphone: Megaphone,
@@ -17,6 +21,9 @@ const iconMap: { [key: string]: any } = {
 };
 
 export default function AdminServices() {
+  const [services, setServices] = useState<Service[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState({
     title: "",
@@ -25,7 +32,23 @@ export default function AdminServices() {
   });
   const [toast, setToast] = useState({ isVisible: false, message: "", type: "success" as const });
 
-  const handleEdit = (service: (typeof services)[0]) => {
+  useEffect(() => {
+    fetchServices();
+  }, []);
+
+  const fetchServices = async () => {
+    try {
+      setIsLoading(true);
+      const data = await api.getServices();
+      setServices(data);
+    } catch (err: any) {
+      setError(err.message || "Hizmetler yüklenirken bir hata oluştu");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleEdit = (service: Service) => {
     setEditingId(service.id);
     setEditForm({
       title: service.title,
@@ -34,10 +57,17 @@ export default function AdminServices() {
     });
   };
 
-  const handleSave = () => {
-    console.log("Saving:", editingId, editForm);
-    setEditingId(null);
-    setToast({ isVisible: true, message: "Hizmet başarıyla güncellendi!", type: "success" });
+  const handleSave = async () => {
+    if (!editingId) return;
+
+    try {
+      const updatedService = await api.updateService(editingId, editForm);
+      setServices(services.map(s => s.id === editingId ? updatedService : s));
+      setEditingId(null);
+      setToast({ isVisible: true, message: "Hizmet başarıyla güncellendi!", type: "success" });
+    } catch (err: any) {
+      setToast({ isVisible: true, message: err.message || "Hizmet güncellenirken bir hata oluştu", type: "error" });
+    }
   };
 
   const handleCancel = () => {
@@ -60,10 +90,28 @@ export default function AdminServices() {
         </p>
       </div>
 
+      {/* Loading State */}
+      {isLoading && (
+        <div className="flex items-center justify-center py-16">
+          <div className="text-center">
+            <div className="w-12 h-12 border-4 border-[#800020] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600">Hizmetler yükleniyor...</p>
+          </div>
+        </div>
+      )}
+
+      {/* Error State */}
+      {error && !isLoading && (
+        <div className="bg-red-50 border border-red-200 text-red-600 px-6 py-4 rounded-lg">
+          {error}
+        </div>
+      )}
+
       {/* Services List */}
-      <div className="space-y-6">
-        {services.map((service, index) => {
-          const Icon = iconMap[service.icon];
+      {!isLoading && !error && (
+        <div className="space-y-6">
+          {services.map((service, index) => {
+          const Icon = iconMap[service.icon] || Share2;
           const isEditing = editingId === service.id;
 
           return (
@@ -156,7 +204,8 @@ export default function AdminServices() {
             </motion.div>
           );
         })}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
