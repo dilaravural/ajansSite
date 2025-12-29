@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { Play, ArrowRight } from "lucide-react";
-import Card from "@/components/ui/Card";
+import Card3D from "@/components/ui/Card3D";
 import SectionTitle from "@/components/ui/SectionTitle";
 import Button from "@/components/ui/Button";
 import { api, Project } from "@/lib/api";
@@ -41,10 +41,11 @@ export default function Portfolio() {
 
   return (
     <section className="py-24 bg-white">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-6 md:px-8 lg:px-12">
         <SectionTitle
           title="Öne Çıkan Çalışmalar"
           subtitle="Müşterilerimiz için gerçekleştirdiğimiz başarılı projelere göz atın."
+          highlightWords={["Çalışmalar"]}
         />
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -55,8 +56,9 @@ export default function Portfolio() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.15 }}
+              style={{ perspective: 1000 }}
             >
-              <Card className="group overflow-hidden">
+              <Card3D className="group overflow-hidden" intensity={10}>
                 {/* Thumbnail */}
                 <div className="relative aspect-video bg-gradient-to-br from-gray-200 to-gray-300 overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-br from-[#800020] to-[#5c0017] opacity-80" />
@@ -91,7 +93,7 @@ export default function Portfolio() {
                     </span>
                   </div>
                 </div>
-              </Card>
+              </Card3D>
             </motion.div>
           ))}
         </div>

@@ -53,6 +53,8 @@ export default function IletisimPage() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const { getBackground } = useBackgrounds();
+  const backgroundImage = getBackground("iletisim");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,8 +96,18 @@ export default function IletisimPage() {
   return (
     <div className="page-transition pt-20">
       {/* Hero Section */}
-      <section className="py-24 bg-gradient-to-b from-gray-50 to-white">
-        <div className="container mx-auto px-4">
+      <section
+        className="py-24 bg-gradient-to-b from-gray-50 to-white relative"
+        style={backgroundImage ? {
+          backgroundImage: `url(${backgroundImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        } : {}}
+      >
+        {backgroundImage && (
+          <div className="absolute inset-0 bg-white/80" />
+        )}
+        <div className="container mx-auto px-6 md:px-8 lg:px-12 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -119,7 +131,7 @@ export default function IletisimPage() {
 
       {/* Contact Section */}
       <section className="py-24 bg-white">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12">
           <div className="grid lg:grid-cols-2 gap-16">
             {/* Contact Form */}
             <motion.div
@@ -290,7 +302,7 @@ export default function IletisimPage() {
 
       {/* FAQ Section */}
       <section className="py-24 bg-gray-50">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}

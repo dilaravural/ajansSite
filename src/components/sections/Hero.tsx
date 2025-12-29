@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
 import CountUp from "@/components/ui/CountUp";
+import TextReveal from "@/components/ui/TextReveal";
 import { Play, ArrowRight } from "lucide-react";
 import { api } from "@/lib/api";
 
@@ -55,7 +56,7 @@ export default function Hero() {
       </div>
 
 
-      <div className="container mx-auto px-4 pt-20 relative z-10">
+      <div className="container mx-auto px-6 md:px-8 lg:px-12 pt-20 relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Content */}
           <motion.div
@@ -75,27 +76,30 @@ export default function Hero() {
               </span>
             </motion.div>
 
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="text-4xl md:text-5xl lg:text-6xl font-bold text-black leading-tight mb-6"
-            >
-              Markanızı{" "}
-              <span className="text-[#800020]">Dijital Dünyada</span>{" "}
-              Öne Çıkarıyoruz
-            </motion.h1>
+            <div className="mb-6">
+              <TextReveal
+                tag="h1"
+                className="text-4xl md:text-5xl lg:text-6xl font-bold text-black leading-tight"
+                delay={0.3}
+                type="words"
+                staggerChildren={0.08}
+                highlightWords={["Dijital", "Dünyada"]}
+              >
+                Markanızı Dijital Dünyada Öne Çıkarıyoruz
+              </TextReveal>
+            </div>
 
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="text-lg text-gray-600 mb-8 max-w-xl mx-auto lg:mx-0"
-            >
-              Video prodüksiyon, sosyal medya yönetimi ve dijital pazarlama
-              alanlarında profesyonel çözümler sunuyoruz. Yaratıcı hikayelerinizi
-              güçlü görsellerle hayata geçiriyoruz.
-            </motion.p>
+            <div className="mb-8 max-w-xl mx-auto lg:mx-0">
+              <TextReveal
+                tag="p"
+                className="text-lg text-gray-600"
+                delay={0.6}
+                type="words"
+                staggerChildren={0.03}
+              >
+                Video prodüksiyon, sosyal medya yönetimi ve dijital pazarlama alanlarında profesyonel çözümler sunuyoruz. Yaratıcı hikayelerinizi güçlü görsellerle hayata geçiriyoruz.
+              </TextReveal>
+            </div>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -204,21 +208,6 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* Scroll indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2"
-      >
-        <motion.div
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-          className="w-6 h-10 border-2 border-[#800020] rounded-full flex justify-center pt-2"
-        >
-          <div className="w-1.5 h-3 bg-[#800020] rounded-full" />
-        </motion.div>
-      </motion.div>
     </section>
   );
 }

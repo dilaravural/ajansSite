@@ -7,7 +7,12 @@ import Link from "next/link";
 import SectionTitle from "@/components/ui/SectionTitle";
 import Button from "@/components/ui/Button";
 import CTA from "@/components/sections/CTA";
+
 import { api, Service } from "@/lib/api";
+
+import { services } from "@/data/services";
+import { useBackgrounds } from "@/context/BackgroundContext";
+
 
 const iconMap: { [key: string]: any } = {
   Share2: Share2,
@@ -48,6 +53,7 @@ const process = [
 ];
 
 export default function HizmetlerPage() {
+
   const [services, setServices] = useState<Service[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -67,12 +73,26 @@ export default function HizmetlerPage() {
 
     fetchServices();
   }, []);
+      
+  const { getBackground } = useBackgrounds();
+  const backgroundImage = getBackground("hizmetler");
+
 
   return (
     <div className="page-transition pt-20">
       {/* Hero Section */}
-      <section className="py-24 bg-gradient-to-b from-gray-50 to-white">
-        <div className="container mx-auto px-4">
+      <section
+        className="py-24 bg-gradient-to-b from-gray-50 to-white relative"
+        style={backgroundImage ? {
+          backgroundImage: `url(${backgroundImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        } : {}}
+      >
+        {backgroundImage && (
+          <div className="absolute inset-0 bg-white/80" />
+        )}
+        <div className="container mx-auto px-6 md:px-8 lg:px-12 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -96,6 +116,7 @@ export default function HizmetlerPage() {
 
       {/* Services Detail */}
       <section className="py-24 bg-white">
+
         <div className="container mx-auto px-4">
           {/* Loading State */}
           {isLoading && (
@@ -121,6 +142,12 @@ export default function HizmetlerPage() {
             <div className="space-y-24">
               {services.map((service, index) => {
               const Icon = iconMap[service.icon] || Share2;
+
+        <div className="container mx-auto px-6 md:px-8 lg:px-12">
+          <div className="space-y-24">
+            {services.map((service, index) => {
+              const Icon = iconMap[service.icon];
+              
               const isEven = index % 2 === 0;
 
               return (
@@ -181,7 +208,7 @@ export default function HizmetlerPage() {
 
       {/* Process */}
       <section className="py-24 bg-gray-50">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12">
           <SectionTitle
             title="Çalışma Sürecimiz"
             subtitle="Projelerinizi başarıyla tamamlamak için izlediğimiz adımlar."
@@ -219,7 +246,7 @@ export default function HizmetlerPage() {
 
       {/* Why Choose Us */}
       <section className="py-24 bg-white">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <motion.div
               initial={{ opacity: 0, x: -50 }}

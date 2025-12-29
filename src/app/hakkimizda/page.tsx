@@ -1,9 +1,12 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { CheckCircle, Target, Eye, Heart, Users, Award, Zap } from "lucide-react";
+import { Target, Eye, Heart, Users, Award, Zap, Rocket, Smile, Clock, UserCheck } from "lucide-react";
 import SectionTitle from "@/components/ui/SectionTitle";
 import CTA from "@/components/sections/CTA";
+import { useBackgrounds } from "@/context/BackgroundContext";
+import { useTimeline } from "@/context/TimelineContext";
+import CountUp from "@/components/ui/CountUp";
 
 const values = [
   {
@@ -33,51 +36,32 @@ const values = [
 ];
 
 const stats = [
-  { value: "150+", label: "Tamamlanan Proje" },
-  { value: "50+", label: "Mutlu Müşteri" },
-  { value: "5+", label: "Yıl Deneyim" },
-  { value: "10+", label: "Uzman Ekip" },
-];
-
-const timeline = [
-  {
-    year: "2019",
-    title: "Kuruluş",
-    description: "Enki Media, dijital medya alanında hizmet vermek üzere kuruldu.",
-  },
-  {
-    year: "2020",
-    title: "İlk Büyük Projeler",
-    description: "Ulusal markalara video prodüksiyon hizmeti vermeye başladık.",
-  },
-  {
-    year: "2021",
-    title: "Ekip Genişlemesi",
-    description: "Sosyal medya yönetimi ve reklam hizmetlerini portföyümüze ekledik.",
-  },
-  {
-    year: "2022",
-    title: "Ödüller",
-    description: "Sektörde yaptığımız başarılı işlerle çeşitli ödüller aldık.",
-  },
-  {
-    year: "2023",
-    title: "Büyüme",
-    description: "Müşteri portföyümüzü genişlettik, yeni teknolojilere yatırım yaptık.",
-  },
-  {
-    year: "2024",
-    title: "Yeni Dönem",
-    description: "Daha büyük hedeflerle yolumuza devam ediyoruz.",
-  },
+  { value: 150, suffix: "+", label: "Tamamlanan Proje", icon: Rocket },
+  { value: 50, suffix: "+", label: "Mutlu Müşteri", icon: Smile },
+  { value: 5, suffix: "+", label: "Yıl Deneyim", icon: Clock },
+  { value: 10, suffix: "+", label: "Uzman Ekip", icon: UserCheck },
 ];
 
 export default function HakkimizdaPage() {
+  const { getBackground } = useBackgrounds();
+  const backgroundImage = getBackground("hakkimizda");
+  const { timeline } = useTimeline();
+
   return (
     <div className="page-transition pt-20">
       {/* Hero Section */}
-      <section className="py-24 bg-gradient-to-b from-gray-50 to-white">
-        <div className="container mx-auto px-4">
+      <section
+        className="py-24 bg-gradient-to-b from-gray-50 to-white relative"
+        style={backgroundImage ? {
+          backgroundImage: `url(${backgroundImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        } : {}}
+      >
+        {backgroundImage && (
+          <div className="absolute inset-0 bg-white/80" />
+        )}
+        <div className="container mx-auto px-6 md:px-8 lg:px-12 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -101,9 +85,9 @@ export default function HakkimizdaPage() {
       </section>
 
       {/* Stats */}
-      <section className="py-16 bg-[#800020]">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+      <section className="py-10 bg-[#800020]">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {stats.map((stat, index) => (
               <motion.div
                 key={index}
@@ -113,10 +97,13 @@ export default function HakkimizdaPage() {
                 transition={{ delay: index * 0.1 }}
                 className="text-center"
               >
-                <div className="text-4xl md:text-5xl font-bold text-white mb-2">
-                  {stat.value}
+                <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center mx-auto mb-2">
+                  <stat.icon className="w-6 h-6 text-white" />
                 </div>
-                <div className="text-white/80">{stat.label}</div>
+                <div className="text-3xl md:text-4xl font-bold text-white mb-1">
+                  <CountUp end={stat.value} duration={2.5} suffix={stat.suffix} />
+                </div>
+                <div className="text-white/80 text-sm">{stat.label}</div>
               </motion.div>
             ))}
           </div>
@@ -125,7 +112,7 @@ export default function HakkimizdaPage() {
 
       {/* Story */}
       <section className="py-24 bg-white">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <motion.div
               initial={{ opacity: 0, x: -50 }}
@@ -178,7 +165,7 @@ export default function HakkimizdaPage() {
 
       {/* Vision & Mission */}
       <section className="py-24 bg-gray-50">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12">
           <div className="grid md:grid-cols-2 gap-12">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -220,7 +207,7 @@ export default function HakkimizdaPage() {
 
       {/* Values */}
       <section className="py-24 bg-white">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12">
           <SectionTitle
             title="Değerlerimiz"
             subtitle="İşimizi yaparken bizi yönlendiren temel değerler."
@@ -251,7 +238,7 @@ export default function HakkimizdaPage() {
 
       {/* Timeline */}
       <section className="py-24 bg-gray-50">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12">
           <SectionTitle
             title="Yolculuğumuz"
             subtitle="Kuruluşumuzdan bugüne önemli kilometre taşları."
@@ -262,60 +249,66 @@ export default function HakkimizdaPage() {
               {/* Line */}
               <div className="absolute left-1/2 transform -translate-x-1/2 w-1 h-full bg-[#800020]/20 hidden md:block" />
 
-              {timeline.map((item, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                  className={`relative flex items-center mb-8 ${
-                    index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"
-                  }`}
-                >
-                  <div className="flex-1 md:text-right md:pr-8">
-                    {index % 2 === 0 && (
-                      <div className="bg-white p-6 rounded-xl shadow-lg">
-                        <div className="text-[#800020] font-bold text-lg mb-1">
-                          {item.year}
-                        </div>
-                        <div className="text-xl font-bold text-black mb-2">
-                          {item.title}
-                        </div>
-                        <p className="text-gray-600">{item.description}</p>
+              {timeline.map((item, index) => {
+                const isLeft = index % 2 === 0;
+                return (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.1 }}
+                    className="relative mb-8"
+                  >
+                    {/* Desktop view */}
+                    <div className="hidden md:grid md:grid-cols-[1fr_auto_1fr] items-center gap-4">
+                      {/* Left side */}
+                      <div className={`${isLeft ? "text-right pr-8" : ""}`}>
+                        {isLeft && (
+                          <div className="bg-white p-6 rounded-xl shadow-lg inline-block text-left">
+                            <div className="text-[#800020] font-bold text-lg mb-1">
+                              {item.year}
+                            </div>
+                            <div className="text-xl font-bold text-black mb-2">
+                              {item.title}
+                            </div>
+                            <p className="text-gray-600">{item.description}</p>
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
 
-                  {/* Center dot */}
-                  <div className="hidden md:flex w-4 h-4 bg-[#800020] rounded-full z-10 shrink-0" />
+                      {/* Center dot */}
+                      <div className="w-4 h-4 bg-[#800020] rounded-full z-10 shrink-0" />
 
-                  <div className="flex-1 md:pl-8">
-                    {index % 2 !== 0 && (
-                      <div className="bg-white p-6 rounded-xl shadow-lg">
-                        <div className="text-[#800020] font-bold text-lg mb-1">
-                          {item.year}
-                        </div>
-                        <div className="text-xl font-bold text-black mb-2">
-                          {item.title}
-                        </div>
-                        <p className="text-gray-600">{item.description}</p>
+                      {/* Right side */}
+                      <div className={`${!isLeft ? "text-left pl-8" : ""}`}>
+                        {!isLeft && (
+                          <div className="bg-white p-6 rounded-xl shadow-lg inline-block text-left">
+                            <div className="text-[#800020] font-bold text-lg mb-1">
+                              {item.year}
+                            </div>
+                            <div className="text-xl font-bold text-black mb-2">
+                              {item.title}
+                            </div>
+                            <p className="text-gray-600">{item.description}</p>
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
+                    </div>
 
-                  {/* Mobile view */}
-                  <div className="md:hidden bg-white p-6 rounded-xl shadow-lg w-full">
-                    <div className="text-[#800020] font-bold text-lg mb-1">
-                      {item.year}
+                    {/* Mobile view */}
+                    <div className="md:hidden bg-white p-6 rounded-xl shadow-lg">
+                      <div className="text-[#800020] font-bold text-lg mb-1">
+                        {item.year}
+                      </div>
+                      <div className="text-xl font-bold text-black mb-2">
+                        {item.title}
+                      </div>
+                      <p className="text-gray-600">{item.description}</p>
                     </div>
-                    <div className="text-xl font-bold text-black mb-2">
-                      {item.title}
-                    </div>
-                    <p className="text-gray-600">{item.description}</p>
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+                );
+              })}
             </div>
           </div>
         </div>

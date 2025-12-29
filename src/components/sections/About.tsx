@@ -15,7 +15,7 @@ const features = [
 export default function About() {
   return (
     <section className="py-24 bg-white overflow-hidden">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-6 md:px-8 lg:px-12">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* Visual */}
           <motion.div

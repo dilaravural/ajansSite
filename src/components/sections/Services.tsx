@@ -51,10 +51,11 @@ export default function Services() {
   }
   return (
     <section className="py-24 bg-gray-50">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-6 md:px-8 lg:px-12">
         <SectionTitle
           title="Hizmetlerimiz"
           subtitle="Markanızın dijital dünyada başarılı olması için ihtiyaç duyduğu tüm hizmetleri sunuyoruz."
+          highlightWords={["Hizmetlerimiz"]}
         />
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -67,8 +68,9 @@ export default function Services() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
+                style={{ perspective: 1000 }}
               >
-                <Card className="p-6 h-full group">
+                <Card3D className="p-6 h-full group" intensity={12}>
                   <div className="w-14 h-14 bg-[#800020]/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-[#800020] transition-colors duration-300">
                     <Icon className="w-7 h-7 text-[#800020] group-hover:text-white transition-colors duration-300" />
                   </div>
@@ -83,7 +85,7 @@ export default function Services() {
                     Detaylar
                     <ArrowRight className="ml-1 w-4 h-4" />
                   </Link>
-                </Card>
+                </Card3D>
               </motion.div>
             );
           })}
